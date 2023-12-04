@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <script src="https://unpkg.com/parsimmon@1.5.1/dist/parsimmon.min.js"></script>
+    <title>Analizador Sintáctico</title>
+</head>
+
+<body>
+
+    <nav class="navbar navbar-expand-lg bg-body-tertiary">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="index.html">Automatas II</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="Semantico.html">Analizador Semántico</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="Sintactico.html">Analizador Sintáctico</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="lexico.html">Analizador Léxico</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <h1>Analizador Sintáctico</h1>
+
+    <div class="row g-3 align-items-center">
+        <div class="col-auto">
+            <label for="input">Entrada:</label>
+        </div>
+        <div class="col-auto">
+            <input type="text" id="input" />
+        </div>
+        <div class="col-auto">
+            <button id="btnEnviar" class="btn btn-primary" onclick="analizarExpresion()">Analizar</button>
+        </div>
+    </div>
+
+    <div class="row mt-3">
+        <div class="col-md-6">
+            <label for="result">Salida:</label>
+            <div id="result"></div>
+        </div>
+    </div>
+
+    <script>
+        // Definir la gramática con Parsimmon
+        const P = Parsimmon;
+
+        const number = P.digit.atLeast(1).map(d => parseInt(d.join(''), 10));
+        const parens = P.lazy(() => expression).wrap(P.string('('), P.string(')'));
+        const term = P.lazy(() => parens.or(number));
+        const mul = P.seq(term, P.string('*').then(term).many())
+            .map(() => true); // Solo validamos la estructura
+        const add = P.seq(mul, P.string('+').then(mul).many())
+            .map(() => true); // Solo validamos la estructura
+        const expression = P.lazy(() => add.or(mul));
+
+        // Función para analizar la entrada utilizando la gramática definida
+        function analizarExpresion() {
+            const inputField = document.getElementById('input');
+            const resultParagraph = document.getElementById('result');
+            const inputText = inputField.value.trim();
+
+            try {
+                if (inputText !== "") {
+                    // Intentar analizar la entrada utilizando el analizador sintáctico
+                    expression.parse(inputText);
+                    resultParagraph.innerHTML = 'Entrada válida sintácticamente.';
+                } else {
+                    throw new Error("La entrada está vacía.");
+                }
+            } catch (error) {
+                resultParagraph.innerHTML = 'Entrada no válida sintácticamente, verifique de nuevo.';
+            }
+        }
+    </script>
+
+</body>
+
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
